@@ -14,7 +14,7 @@ namespace ComvoyaAPI.Services.UserService
 {
     public class UserService(AppDbContext context, JwtTokenService jwtTokenService) : IUserService
     {
-        public async Task<User> RegisterAsync(UserDto request)
+        public async Task<User?> RegisterAsync(UserDto request)
         {
             if (await context.Users.AnyAsync(u => u.Username == request.Username))
             {
@@ -37,7 +37,7 @@ namespace ComvoyaAPI.Services.UserService
 
             return user;
         }
-        public async Task<string> LoginAsync(UserDto request)
+        public async Task<string?> LoginAsync(UserDto request)
         {
             var user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 
@@ -107,6 +107,46 @@ namespace ComvoyaAPI.Services.UserService
 
             context.Users.Remove(user);
             await context.SaveChangesAsync(ct);
+        }
+
+        public async Task<List<InterestDTO>> GetUserInterestsAsync(Guid id, CancellationToken ct)
+        {
+            var userInterests = await context.UserInterests
+                                            .Where(ui => ui.UserId == id)
+                                            .Select(ui => new InterestDTO
+                                            {
+                                                Id = ui.InterestId,
+                                                Name = ui.Name
+                                            }).ToListAsync(ct);
+
+            if (userInterests == null)
+                throw new UserInterestNotFoundException(id);
+
+            return userInterests;
+        }
+
+        public async Task AddUserInterestAsync(Guid userId, int interestId, CancellationToken ct)
+        {
+            bool interestExists = await context.UserInterests.AnyAsync(ui => ui.UserId == userId && ui.InterestId == interestId, ct);
+
+            if (!interestExists)
+            {
+                var interest = await context.Interests.FirstOrDefaultAsync(i => i.Id == interestId);
+                var userInterest = new UserInterest { InterestId = interestId, UserId = userId, Name = interest!.Name };
+                context.UserInterests.Add(userInterest);
+                await context.SaveChangesAsync(ct);
+            }
+        }
+
+        public async Task DeleteUserInterestAsync(Guid userId, int interestId, CancellationToken ct)
+        {
+            var userInterest = await context.UserInterests.FirstOrDefaultAsync(ui => ui.UserId == userId && ui.InterestId == interestId, ct);
+
+            if (userInterest != null)
+            {
+                context.UserInterests.Remove(userInterest);
+                await context.SaveChangesAsync(ct);
+            }
         }
     }
 }

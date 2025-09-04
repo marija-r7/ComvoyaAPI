@@ -11,6 +11,6 @@ namespace ComvoyaAPI.Application.Models
         public string Password { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
 
-        public List<InterestsDTO> Interests { get; set; }
+        public List<InterestDTO>? Interest { get; set; }
     }
 }

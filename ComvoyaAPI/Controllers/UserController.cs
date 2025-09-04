@@ -1,5 +1,6 @@
-﻿using ComvoyaAPI.Domain.Entities;
-using ComvoyaAPI.Application.Models;
+﻿using ComvoyaAPI.Application.Models;
+using ComvoyaAPI.Domain.Entities;
+using ComvoyaAPI.Services.InterestService;
 using ComvoyaAPI.Services.UserService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ namespace ComvoyaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController(IUserService userService) : ControllerBase
+    public class UserController(IUserService userService) : ControllerBase
     {
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserDto request)
@@ -31,7 +32,7 @@ namespace ComvoyaAPI.Controllers
             }
             return Ok(token);
         }
-        [HttpGet("byId/{id:guid}")]
+        [HttpGet("{id:guid}")]
         public async Task<ActionResult<User>> GetUser(Guid id)
         {
             var user = await userService.GetUserAsync(id);
@@ -50,7 +51,7 @@ namespace ComvoyaAPI.Controllers
         }
 
 
-        [HttpGet("byUsername/{username}")]
+        [HttpGet("{string: username}")]
         public async Task<ActionResult<User>> GetUserByUsername(string username)
         {
             var user = await userService.GetUserByUsernameAsync(username);
@@ -69,19 +70,53 @@ namespace ComvoyaAPI.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateUserAsync(UserDto request)
+        public async Task<IActionResult> UpdateUserAsync(UserDto request, CancellationToken ct)
         {
-            await userService.UpdateUserAsync(request);
+            await userService.UpdateUserAsync(request, ct);
 
             return Ok(new { message = "User updated successfully." });
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteUserAsync(Guid id)
+        public async Task<IActionResult> DeleteUserAsync(Guid id, CancellationToken ct)
         {
-            await userService.DeleteUserByIdAsync(id);
+            await userService.DeleteUserByIdAsync(id, ct);
 
             return Ok(new { message = "User removed successfully." });
+        }
+
+        [HttpGet("{id:guid}/interests")]
+        public async Task<ActionResult> GetUserInterests(Guid id, CancellationToken ct)
+        {
+            var interests = await userService.GetUserInterestsAsync(id, ct);
+
+            if (interests == null)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Status = StatusCodes.Status404NotFound,
+                    Title = "Interests not found.",
+                    Detail = $"No interests have been found in the database."
+                });
+            }
+
+            return Ok(interests);
+        }
+
+        [HttpPost("{userId:guid}/addInterest/{int:interestId}")]
+        public async Task<IActionResult> AddUserInterest(Guid userId, int interestId, CancellationToken ct)
+        {
+            await userService.AddUserInterestAsync(userId, interestId, ct);
+
+            return Ok(new { message = "Interest added successfully." });
+        }
+
+        [HttpDelete("{userId:guid}/deleteInterest/{int:interestId}")]
+        public async Task<IActionResult> DeleteUserInterest(Guid userId, int interestId, CancellationToken ct)
+        {
+            await userService.DeleteUserInterestAsync(userId, interestId, ct);
+
+            return Ok(new { message = "Interest removed successfully." });
         }
     }
 }

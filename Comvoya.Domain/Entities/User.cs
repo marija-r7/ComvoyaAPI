@@ -9,6 +9,6 @@
         public string PasswordHash { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
 
-        public List<Interests> Interests { get; set; }
+        public List<Interest>? Interest { get; set; }
     }
 }
