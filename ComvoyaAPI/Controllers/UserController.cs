@@ -94,7 +94,7 @@ namespace ComvoyaAPI.Controllers
             return Ok(interests);
         }
 
-        [HttpPost("me/interests/{int:interestId}")]
+        [HttpPost("me/interests/{interestId:int}")]
         public async Task<ActionResult> AddInterest(int interestId, CancellationToken ct)
         {
             var userId = User.GetUserIdOrThrowUnauthorized();
@@ -102,7 +102,7 @@ namespace ComvoyaAPI.Controllers
             return Ok(new { message = "Interest added successfully." });
         }
 
-        [HttpDelete("me/interests/{int:interestId}")]
+        [HttpDelete("me/interests/{interestId}:int")]
         public async Task<ActionResult> DeleteInterest(int interestId, CancellationToken ct)
         {
             var userId = User.GetUserIdOrThrowUnauthorized();

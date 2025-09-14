@@ -28,7 +28,7 @@ namespace ComvoyaAPI.Controllers
             return Ok(interests);
         }
 
-        [HttpGet("{int:id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult> GetInterest(int id)
         {
             var interest = await interestService.GetInterestAsync(id);

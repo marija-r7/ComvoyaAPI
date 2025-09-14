@@ -1,6 +1,7 @@
 ﻿using Comvoya.Application.Exceptions;
 using Comvoya.Application.Models.Interest;
 using Comvoya.Application.Models.User;
+using Comvoya.Application.Models.UserInterest;
 using ComvoyaAPI.Domain.Entities;
 using ComvoyaAPI.Infrastructure.Data;
 using ComvoyaAPI.Services.AuthService.JwtToken;
@@ -28,11 +29,12 @@ namespace ComvoyaAPI.Services.UserService
                     Lastname = u.Lastname,
                     Username = u.Username,
                     Email = u.Email,
-                    Interests = u.Interest
+                    UserInterests = u.UserInterests
                                 .OrderBy(i => i.Name)
-                                .Select(i => new InterestDTO
+                                .Select(i => new UserInterestDTO
                                 {
-                                    Id = i.Id,
+                                    UserId = u.Id,
+                                    InterestId = i.InterestId,
                                     Name = i.Name
                                 }).ToList()
                 })

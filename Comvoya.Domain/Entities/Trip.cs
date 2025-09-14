@@ -1,6 +1,7 @@
 ﻿using ComvoyaAPI.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -13,7 +14,9 @@ namespace Comvoya.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdatedAt { get; set; }
+        [Required, MaxLength(30)]
         public required string Title { get; set; }
+        [MaxLength(256)]
         public string Description { get; set; } = "";
         public DateTime DateFromUtc { get; set; }
         public DateTime DateToUtc { get; set; }

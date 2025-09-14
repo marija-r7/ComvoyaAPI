@@ -5,16 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ComvoyaAPI.Domain.Entities
+namespace Comvoya.Application.Models.UserInterest
 {
-    public class UserInterest
+    public class UserInterestDTO
     {
         public Guid UserId { get; set; }
         public int InterestId { get; set; }
         [Required, MaxLength(30)]
         public required string Name { get; set; }
-
-        public User User { get; set; }
-        public Interest Interest { get; set; }
     }
 }

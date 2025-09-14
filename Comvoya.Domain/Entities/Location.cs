@@ -9,17 +9,20 @@ namespace Comvoya.Domain.Entities
     public class Location
     {
         public Guid Id { get; set; }
-        public string Provider { get; set; } = default!;
-        public string ProviderPlaceId { get; set; } = default!;
-        public string Name { get; set; } = default!;
-        public string DisplayName { get; set; } = default!;
-        public string? CountryIso2 { get; set; }
-        public Country? Country { get; set; }
-        public decimal Lat { get; set; }
-        public decimal Lng { get; set; }
+        public string CountryIso2 { get; set; } = null!;
+        public string Name { get; set; } = null!;
+        public string? Admin1 { get; set; }
+        public string? Admin2 { get; set; }
+        public decimal? Latitude { get; set; }
+        public decimal? Longitude { get; set; }
         public string? Timezone { get; set; }
-        public string? Slug { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public string? Provider { get; set; }
+        public string? ProviderPlaceId { get; set; }
+        public bool IsActive { get; set; } = true;
+        public DateTime CreatedAtUtc { get; set; }
+        public DateTime UpdatedAtUtc { get; set; }
+
+        public Country Country { get; set; } = null!;
+
     }
 }

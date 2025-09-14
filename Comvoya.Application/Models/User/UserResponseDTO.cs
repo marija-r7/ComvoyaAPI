@@ -1,4 +1,5 @@
-﻿using Comvoya.Application.Models.Interest;
+﻿
+using Comvoya.Application.Models.UserInterest;
 
 namespace Comvoya.Application.Models.User
 {
@@ -9,6 +10,6 @@ namespace Comvoya.Application.Models.User
         public string Lastname { get; set; } = "";
         public string Email { get; set; } = "";
         public string Username { get; set; } = "";
-        public List<InterestDTO>? Interests { get; set; }
+        public ICollection<UserInterestDTO> UserInterests { get; set; } = new List<UserInterestDTO>();
     }
 }
