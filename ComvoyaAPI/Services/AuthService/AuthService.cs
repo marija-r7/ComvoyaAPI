@@ -9,8 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ComvoyaAPI.Services.AuthService
 {
-    public class AuthService(AppDbContext context, JwtTokenService jwtTokenService, IPasswordHasher<User> passwordHasher) : IAuthService
+    public class AuthService(AppDbContext context) : IAuthService
     {
+        private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IJwtTokenService _jwtTokenService;
         public async Task<UserResponseDTO> RegisterAsync(UserRegisterDTO request)
         {
             if (await context.Users.AnyAsync(u => u.Username == request.Username))
@@ -27,7 +29,7 @@ namespace ComvoyaAPI.Services.AuthService
                 Role = UserRole.Standard
             };
 
-            user.setPasswordHash(passwordHasher.HashPassword(user, request.Password));
+            user.setPasswordHash(_passwordHasher.HashPassword(user, request.Password));
 
             context.Users.Add(user);
             await context.SaveChangesAsync();
@@ -55,7 +57,7 @@ namespace ComvoyaAPI.Services.AuthService
                 throw new UserLoginFailedException();
             }
 
-            string token = jwtTokenService.CreateToken(user);
+            string token = _jwtTokenService.CreateToken(user);
             return token;
         }
         public async Task Logout(CancellationToken ct)

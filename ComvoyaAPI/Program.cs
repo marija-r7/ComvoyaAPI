@@ -1,5 +1,9 @@
 using Comvoya.Infrastructure.Middleware;
 using ComvoyaAPI.Infrastructure.Data;
+using ComvoyaAPI.Services.AuthService;
+using ComvoyaAPI.Services.InterestService;
+using ComvoyaAPI.Services.LocationService;
+using ComvoyaAPI.Services.TripService;
 using ComvoyaAPI.Services.UserService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +24,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ComvoyaDatabase")));
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITripService, TripService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IInterestService, InterestService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
     AddJwtBearer(options =>

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ComvoyaAPI.Services.AuthService.JwtToken
 {
-    public class JwtTokenService(IConfiguration configuration)
+    public class JwtTokenService(IConfiguration configuration) : IJwtTokenService
     {
         public string CreateToken(User user)
         {

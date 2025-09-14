@@ -3,13 +3,11 @@ using Comvoya.Application.Models.Country;
 using Comvoya.Application.Models.Location;
 using Comvoya.Domain.Helpers;
 using ComvoyaAPI.Services.LocationService;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Runtime.Intrinsics.Arm;
 
 namespace ComvoyaAPI.Controllers
 {
-    [Route("api")]
+    [Route("api/[controller]")]
     [ApiController]
     public class LocationController(ILocationService locationService) : ControllerBase
     {
