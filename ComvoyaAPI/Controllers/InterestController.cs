@@ -1,4 +1,4 @@
-﻿using ComvoyaAPI.Application.Models;
+﻿using Comvoya.Application.Models.Interest;
 using ComvoyaAPI.Domain.Entities;
 using ComvoyaAPI.Services.InterestService;
 using ComvoyaAPI.Services.UserService;
@@ -8,7 +8,7 @@ namespace ComvoyaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class InterestController(IInterestService interestService) : ControllerBase
+    public class InterestController(IInterestService interestService) : Controller
     {
         [HttpGet]
         public async Task<ActionResult> GetInterests()
@@ -49,7 +49,7 @@ namespace ComvoyaAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateInterestAsync(InterestDTO request, CancellationToken ct)
+        public async Task<ActionResult> UpdateInterestAsync(InterestDTO request, CancellationToken ct)
         {
             await interestService.UpdateInterestAsync(request, ct);
 
@@ -57,7 +57,7 @@ namespace ComvoyaAPI.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteInterestAsync(int id, CancellationToken ct)
+        public async Task<ActionResult> DeleteInterestAsync(int id, CancellationToken ct)
         {
             await interestService.DeleteInterestByIdAsync(id, ct);
 

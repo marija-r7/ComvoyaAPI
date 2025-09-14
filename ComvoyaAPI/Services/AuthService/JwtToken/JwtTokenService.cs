@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace ComvoyaAPI.Services.UserService
+namespace ComvoyaAPI.Services.AuthService.JwtToken
 {
     public class JwtTokenService(IConfiguration configuration)
     {
@@ -14,7 +14,8 @@ namespace ComvoyaAPI.Services.UserService
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(

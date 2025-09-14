@@ -1,7 +1,9 @@
 ﻿using Comvoya.Application.Exceptions;
-using ComvoyaAPI.Application.Models;
+using Comvoya.Application.Models.Interest;
+using Comvoya.Application.Models.User;
 using ComvoyaAPI.Domain.Entities;
 using ComvoyaAPI.Infrastructure.Data;
+using ComvoyaAPI.Services.AuthService.JwtToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,75 +14,54 @@ using System.Text;
 
 namespace ComvoyaAPI.Services.UserService
 {
-    public class UserService(AppDbContext context, JwtTokenService jwtTokenService) : IUserService
+    public class UserService(AppDbContext context) : IUserService
     {
-        public async Task<User?> RegisterAsync(UserDto request)
+        public async Task<List<UserResponseDTO>> GetUsers(CancellationToken ct)
         {
-            if (await context.Users.AnyAsync(u => u.Username == request.Username))
-            {
-                return null;
-            }
-
-            var user = new User();
-
-            var hashedPassword = new PasswordHasher<User>()
-                .HashPassword(user, request.Password);
-
-            user.Username = request.Username;
-            user.Name = request.Name;
-            user.Lastname = request.Lastname;
-            user.Email = request.Email;
-            user.PasswordHash = hashedPassword;
-
-            context.Users.Add(user);
-            await context.SaveChangesAsync();
-
-            return user;
+            var users = await context.Users
+                .AsNoTracking()
+                .OrderBy(u => u.Username)
+                .Select(u => new UserResponseDTO
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Lastname = u.Lastname,
+                    Username = u.Username,
+                    Email = u.Email,
+                    Interests = u.Interest
+                                .OrderBy(i => i.Name)
+                                .Select(i => new InterestDTO
+                                {
+                                    Id = i.Id,
+                                    Name = i.Name
+                                }).ToList()
+                })
+                .ToListAsync(ct);
+            return users;
         }
-        public async Task<string?> LoginAsync(UserDto request)
-        {
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password) == PasswordVerificationResult.Failed)
-            {
-                return null;
-            }
-
-            string token = jwtTokenService.CreateToken(user);
-            return token;
-        }
-
-        public async Task<User> GetUserAsync(Guid id)
+        public async Task<UserResponseDTO> GetUser(Guid id)
         {
             var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
                 throw new UserNotFoundException(id);
 
-            return user;
+            return new UserResponseDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Lastname = user.Lastname,
+                Email = user.Email,
+                Username = user.Username
+            };
         }
 
-        public async Task<User> GetUserByUsernameAsync(string username)
+        public async Task UpdateUser(Guid id, UserUpdateDTO request, CancellationToken ct)
         {
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
-                throw new UserNotFoundException(username);
-
-            return user;
-        }
-
-        public async Task UpdateUserAsync(UserDto request, CancellationToken ct)
-        {
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == request.Id);
-
-            if (user == null)
-                throw new UserNotFoundException(request.Id);
+                throw new UserNotFoundException(id);
 
             if (request.Username != user.Username)
             {
@@ -90,7 +71,7 @@ namespace ComvoyaAPI.Services.UserService
                     throw new UsernameAlreadyExistsException(request.Username);
             }
 
-            user.Username = request.Username;
+            if (request.Username != null) user.Username = request.Username;
             user.Name = request.Name;
             user.Email = request.Email;
             user.Lastname = request.Lastname;
@@ -98,7 +79,7 @@ namespace ComvoyaAPI.Services.UserService
             await context.SaveChangesAsync(ct);
         }
 
-        public async Task DeleteUserByIdAsync(Guid id, CancellationToken ct)
+        public async Task DeleteUser(Guid id, CancellationToken ct)
         {
             var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
@@ -109,7 +90,7 @@ namespace ComvoyaAPI.Services.UserService
             await context.SaveChangesAsync(ct);
         }
 
-        public async Task<List<InterestDTO>> GetUserInterestsAsync(Guid id, CancellationToken ct)
+        public async Task<List<InterestDTO>> GetUserInterests(Guid id, CancellationToken ct)
         {
             var userInterests = await context.UserInterests
                                             .Where(ui => ui.UserId == id)
@@ -125,7 +106,7 @@ namespace ComvoyaAPI.Services.UserService
             return userInterests;
         }
 
-        public async Task AddUserInterestAsync(Guid userId, int interestId, CancellationToken ct)
+        public async Task AddUserInterest(Guid userId, int interestId, CancellationToken ct)
         {
             bool interestExists = await context.UserInterests.AnyAsync(ui => ui.UserId == userId && ui.InterestId == interestId, ct);
 
@@ -138,7 +119,7 @@ namespace ComvoyaAPI.Services.UserService
             }
         }
 
-        public async Task DeleteUserInterestAsync(Guid userId, int interestId, CancellationToken ct)
+        public async Task DeleteInterest(Guid userId, int interestId, CancellationToken ct)
         {
             var userInterest = await context.UserInterests.FirstOrDefaultAsync(ui => ui.UserId == userId && ui.InterestId == interestId, ct);
 

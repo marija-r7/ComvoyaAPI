@@ -1,6 +1,6 @@
 ﻿using Azure.Core;
 using Comvoya.Application.Exceptions;
-using ComvoyaAPI.Application.Models;
+using Comvoya.Application.Models.Interest;
 using ComvoyaAPI.Domain.Entities;
 using ComvoyaAPI.Infrastructure.Data;
 using ComvoyaAPI.Services.UserService;

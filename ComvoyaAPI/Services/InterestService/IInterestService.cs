@@ -1,4 +1,4 @@
-﻿using ComvoyaAPI.Application.Models;
+﻿using Comvoya.Application.Models.Interest;
 using ComvoyaAPI.Domain.Entities;
 
 namespace ComvoyaAPI.Services.InterestService
